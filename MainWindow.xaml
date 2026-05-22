@@ -79,6 +79,22 @@
                         <SymbolIcon Symbol="Edit" />
                     </NavigationViewItem.Icon>
                 </NavigationViewItem>
+                <NavigationViewItem
+                    x:Name="PdfToolboxNavigationItem"
+                    Content="PDF Toolbox"
+                    Tag="pdf">
+                    <NavigationViewItem.Icon>
+                        <SymbolIcon Symbol="Document" />
+                    </NavigationViewItem.Icon>
+                </NavigationViewItem>
+                <NavigationViewItem
+                    x:Name="ImageConverterNavigationItem"
+                    Content="Image Converter"
+                    Tag="images">
+                    <NavigationViewItem.Icon>
+                        <SymbolIcon Symbol="OpenFile" />
+                    </NavigationViewItem.Icon>
+                </NavigationViewItem>
             </NavigationView.MenuItems>
             <Frame x:Name="ContentFrame" />
         </NavigationView>
