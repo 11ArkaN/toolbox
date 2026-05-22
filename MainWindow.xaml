@@ -47,7 +47,7 @@
             Grid.Row="1"
             CompactPaneLength="56"
             IsBackButtonVisible="Collapsed"
-            IsPaneToggleButtonVisible="False"
+            IsPaneToggleButtonVisible="True"
             IsSettingsVisible="False"
             IsPaneOpen="True"
             OpenPaneLength="224"

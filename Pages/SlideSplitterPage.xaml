@@ -156,7 +156,8 @@
                                     Maximum="20"
                                     Minimum="0"
                                     SpinButtonPlacementMode="Inline"
-                                    Value="2" />
+                                    Value="2"
+                                    ValueChanged="CropSetting_ValueChanged" />
                                 <NumberBox
                                     x:Name="MarginRightBox"
                                     Grid.Column="1"
@@ -164,7 +165,8 @@
                                     Maximum="20"
                                     Minimum="0"
                                     SpinButtonPlacementMode="Inline"
-                                    Value="2" />
+                                    Value="2"
+                                    ValueChanged="CropSetting_ValueChanged" />
                                 <NumberBox
                                     x:Name="MarginTopBox"
                                     Grid.Row="1"
@@ -172,7 +174,8 @@
                                     Maximum="20"
                                     Minimum="0"
                                     SpinButtonPlacementMode="Inline"
-                                    Value="2" />
+                                    Value="2"
+                                    ValueChanged="CropSetting_ValueChanged" />
                                 <NumberBox
                                     x:Name="MarginBottomBox"
                                     Grid.Row="1"
@@ -181,7 +184,8 @@
                                     Maximum="20"
                                     Minimum="0"
                                     SpinButtonPlacementMode="Inline"
-                                    Value="2" />
+                                    Value="2"
+                                    ValueChanged="CropSetting_ValueChanged" />
                             </Grid>
 
                             <Grid ColumnSpacing="8">
@@ -195,7 +199,8 @@
                                     Maximum="200"
                                     Minimum="0"
                                     SpinButtonPlacementMode="Inline"
-                                    Value="20" />
+                                    Value="20"
+                                    ValueChanged="CropSetting_ValueChanged" />
                                 <NumberBox
                                     x:Name="DpiBox"
                                     Grid.Column="1"
@@ -204,7 +209,8 @@
                                     Minimum="72"
                                     SmallChange="25"
                                     SpinButtonPlacementMode="Inline"
-                                    Value="300" />
+                                    Value="300"
+                                    ValueChanged="CropSetting_ValueChanged" />
                             </Grid>
 
                             <StackPanel Orientation="Horizontal" Spacing="18">
@@ -221,6 +227,7 @@
                                 <Grid.ColumnDefinitions>
                                     <ColumnDefinition Width="*" />
                                     <ColumnDefinition Width="Auto" />
+                                    <ColumnDefinition Width="Auto" />
                                 </Grid.ColumnDefinitions>
                                 <CheckBox
                                     x:Name="VisualCropCheckBox"
@@ -229,8 +236,19 @@
                                     Content="Visual crop"
                                     Unchecked="VisualCropSettings_Changed" />
                                 <Button
-                                    x:Name="ClearCropRectanglesButton"
+                                    x:Name="DeleteSelectedCropRectangleButton"
                                     Grid.Column="1"
+                                    Click="DeleteSelectedCropRectangleButton_Click"
+                                    IsEnabled="False"
+                                    ToolTipService.ToolTip="Delete selected rectangle">
+                                    <StackPanel Orientation="Horizontal" Spacing="8">
+                                        <SymbolIcon Symbol="Remove" />
+                                        <TextBlock Text="Delete" />
+                                    </StackPanel>
+                                </Button>
+                                <Button
+                                    x:Name="ClearCropRectanglesButton"
+                                    Grid.Column="2"
                                     Click="ClearCropRectanglesButton_Click"
                                     IsEnabled="False"
                                     ToolTipService.ToolTip="Clear rectangles">
