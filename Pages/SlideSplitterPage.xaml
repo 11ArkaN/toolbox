@@ -1,0 +1,285 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<Page
+    x:Class="Toolbox.Pages.SlideSplitterPage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    Background="{ThemeResource SolidBackgroundFillColorTertiaryBrush}"
+    mc:Ignorable="d">
+
+    <Grid Padding="24" RowSpacing="18">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
+
+        <StackPanel Spacing="4">
+            <TextBlock Style="{StaticResource TitleTextBlockStyle}" Text="Slide Splitter" />
+            <TextBlock Foreground="{ThemeResource TextFillColorSecondaryBrush}" Text="Extract single slides from two-up vertical PDF pages." />
+        </StackPanel>
+
+        <Grid Grid.Row="1" ColumnSpacing="20">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="3*" />
+                <ColumnDefinition Width="2*" />
+            </Grid.ColumnDefinitions>
+
+            <Border
+                Padding="12"
+                Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
+                BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
+                BorderThickness="1"
+                CornerRadius="8">
+                <Grid
+                    x:Name="PreviewHost"
+                    Background="{ThemeResource SolidBackgroundFillColorBaseBrush}">
+                    <Image
+                        x:Name="PreviewImage"
+                        Stretch="Uniform" />
+                    <Canvas
+                        x:Name="PreviewOverlay"
+                        Background="Transparent"
+                        PointerMoved="PreviewOverlay_PointerMoved"
+                        PointerPressed="PreviewOverlay_PointerPressed"
+                        PointerReleased="PreviewOverlay_PointerReleased"
+                        PointerCanceled="PreviewOverlay_PointerReleased"
+                        SizeChanged="PreviewOverlay_SizeChanged">
+                        <Rectangle
+                            x:Name="SplitLineHitTarget"
+                            Height="18"
+                            Fill="Transparent" />
+                        <Rectangle
+                            x:Name="SplitLine"
+                            Height="3"
+                            Fill="{ThemeResource SystemFillColorCriticalBrush}" />
+                    </Canvas>
+                    <TextBlock
+                        x:Name="PreviewPlaceholder"
+                        HorizontalAlignment="Center"
+                        VerticalAlignment="Center"
+                        Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                        Text="No PDF selected" />
+                </Grid>
+            </Border>
+
+            <ScrollViewer Grid.Column="1" VerticalScrollBarVisibility="Auto">
+                <StackPanel Spacing="16">
+                    <Border
+                        Padding="16"
+                        Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
+                        BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
+                        BorderThickness="1"
+                        CornerRadius="8">
+                        <StackPanel Spacing="12">
+                            <TextBlock Style="{StaticResource SubtitleTextBlockStyle}" Text="Files" />
+                            <Grid ColumnSpacing="8">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*" />
+                                    <ColumnDefinition Width="Auto" />
+                                </Grid.ColumnDefinitions>
+                                <TextBox
+                                    x:Name="PdfPathBox"
+                                    IsReadOnly="True"
+                                    PlaceholderText="No PDF selected" />
+                                <Button
+                                    x:Name="BrowsePdfButton"
+                                    Grid.Column="1"
+                                    Click="BrowsePdfButton_Click">
+                                    <StackPanel Orientation="Horizontal" Spacing="8">
+                                        <FontIcon FontSize="14" Glyph="&#xE8A5;" />
+                                        <TextBlock Text="PDF" />
+                                    </StackPanel>
+                                </Button>
+                            </Grid>
+                            <Grid ColumnSpacing="8">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*" />
+                                    <ColumnDefinition Width="Auto" />
+                                </Grid.ColumnDefinitions>
+                                <TextBox
+                                    x:Name="OutputPathBox"
+                                    IsReadOnly="True"
+                                    PlaceholderText="Default output folder" />
+                                <Button
+                                    x:Name="ChooseOutputButton"
+                                    Grid.Column="1"
+                                    Click="ChooseOutputButton_Click">
+                                    <StackPanel Orientation="Horizontal" Spacing="8">
+                                        <FontIcon FontSize="14" Glyph="&#xE8B7;" />
+                                        <TextBlock Text="Folder" />
+                                    </StackPanel>
+                                </Button>
+                            </Grid>
+                        </StackPanel>
+                    </Border>
+
+                    <Border
+                        Padding="16"
+                        Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
+                        BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
+                        BorderThickness="1"
+                        CornerRadius="8">
+                        <StackPanel Spacing="14">
+                            <TextBlock Style="{StaticResource SubtitleTextBlockStyle}" Text="Split" />
+                            <Grid ColumnSpacing="10">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*" />
+                                    <ColumnDefinition Width="96" />
+                                </Grid.ColumnDefinitions>
+                                <Slider
+                                    x:Name="SplitSlider"
+                                    Maximum="90"
+                                    Minimum="10"
+                                    Value="50"
+                                    ValueChanged="SplitSlider_ValueChanged" />
+                                <NumberBox
+                                    x:Name="SplitNumberBox"
+                                    Grid.Column="1"
+                                    Maximum="90"
+                                    Minimum="10"
+                                    SmallChange="1"
+                                    SpinButtonPlacementMode="Inline"
+                                    Value="50"
+                                    ValueChanged="SplitNumberBox_ValueChanged" />
+                            </Grid>
+
+                            <Grid ColumnSpacing="8" RowSpacing="8">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*" />
+                                    <ColumnDefinition Width="*" />
+                                </Grid.ColumnDefinitions>
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="Auto" />
+                                    <RowDefinition Height="Auto" />
+                                </Grid.RowDefinitions>
+                                <NumberBox
+                                    x:Name="MarginLeftBox"
+                                    Header="Left %"
+                                    Maximum="20"
+                                    Minimum="0"
+                                    SpinButtonPlacementMode="Inline"
+                                    Value="2" />
+                                <NumberBox
+                                    x:Name="MarginRightBox"
+                                    Grid.Column="1"
+                                    Header="Right %"
+                                    Maximum="20"
+                                    Minimum="0"
+                                    SpinButtonPlacementMode="Inline"
+                                    Value="2" />
+                                <NumberBox
+                                    x:Name="MarginTopBox"
+                                    Grid.Row="1"
+                                    Header="Top %"
+                                    Maximum="20"
+                                    Minimum="0"
+                                    SpinButtonPlacementMode="Inline"
+                                    Value="2" />
+                                <NumberBox
+                                    x:Name="MarginBottomBox"
+                                    Grid.Row="1"
+                                    Grid.Column="1"
+                                    Header="Bottom %"
+                                    Maximum="20"
+                                    Minimum="0"
+                                    SpinButtonPlacementMode="Inline"
+                                    Value="2" />
+                            </Grid>
+
+                            <Grid ColumnSpacing="8">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*" />
+                                    <ColumnDefinition Width="*" />
+                                </Grid.ColumnDefinitions>
+                                <NumberBox
+                                    x:Name="GutterBox"
+                                    Header="Gutter px"
+                                    Maximum="200"
+                                    Minimum="0"
+                                    SpinButtonPlacementMode="Inline"
+                                    Value="20" />
+                                <NumberBox
+                                    x:Name="DpiBox"
+                                    Grid.Column="1"
+                                    Header="DPI"
+                                    Maximum="600"
+                                    Minimum="72"
+                                    SmallChange="25"
+                                    SpinButtonPlacementMode="Inline"
+                                    Value="300" />
+                            </Grid>
+
+                            <StackPanel Orientation="Horizontal" Spacing="18">
+                                <CheckBox
+                                    x:Name="ExportPngCheckBox"
+                                    Content="PNG"
+                                    IsChecked="True" />
+                                <CheckBox
+                                    x:Name="ExportPdfCheckBox"
+                                    Content="PDF" />
+                            </StackPanel>
+
+                            <Grid ColumnSpacing="8">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*" />
+                                    <ColumnDefinition Width="120" />
+                                </Grid.ColumnDefinitions>
+                                <CheckBox
+                                    x:Name="VisualCropCheckBox"
+                                    VerticalAlignment="Bottom"
+                                    Checked="VisualCropSettings_Changed"
+                                    Content="Visual crop"
+                                    Unchecked="VisualCropSettings_Changed" />
+                                <NumberBox
+                                    x:Name="FragmentCountBox"
+                                    Grid.Column="1"
+                                    Header="Fragments"
+                                    IsEnabled="False"
+                                    Maximum="24"
+                                    Minimum="2"
+                                    SpinButtonPlacementMode="Inline"
+                                    Value="2"
+                                    ValueChanged="FragmentCountBox_ValueChanged" />
+                            </Grid>
+                        </StackPanel>
+                    </Border>
+
+                    <Button
+                        x:Name="ExtractButton"
+                        Click="ExtractButton_Click"
+                        IsEnabled="False"
+                        Style="{StaticResource AccentButtonStyle}">
+                        <StackPanel Orientation="Horizontal" Spacing="8">
+                            <FontIcon FontSize="14" Glyph="&#xE74E;" />
+                            <TextBlock Text="Extract slides" />
+                        </StackPanel>
+                    </Button>
+
+                    <StackPanel Spacing="8">
+                        <ProgressBar
+                            x:Name="SlideProgressBar"
+                            Maximum="100"
+                            Minimum="0"
+                            Value="0" />
+                        <TextBlock
+                            x:Name="SlideStatusText"
+                            Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                            Text="Ready" />
+                        <TextBox
+                            x:Name="SlideLogBox"
+                            AcceptsReturn="True"
+                            Height="128"
+                            IsReadOnly="True"
+                            TextWrapping="Wrap"
+                            ScrollViewer.VerticalScrollBarVisibility="Auto" />
+                        <InfoBar
+                            x:Name="SlideInfoBar"
+                            IsOpen="False"
+                            Severity="Informational" />
+                    </StackPanel>
+                </StackPanel>
+            </ScrollViewer>
+        </Grid>
+    </Grid>
+</Page>
