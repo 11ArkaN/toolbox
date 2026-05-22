@@ -120,10 +120,7 @@
                             <NumberBox
                                 x:Name="ImageQualityBox"
                                 Header="Quality"
-                                Maximum="100"
-                                Minimum="1"
                                 SpinButtonPlacementMode="Inline"
-                                Value="85"
                                 ValueChanged="ImageRules_Changed" />
                         </StackPanel>
                     </Border>
@@ -154,17 +151,13 @@
                                 <NumberBox
                                     x:Name="ImageWidthBox"
                                     Header="Width"
-                                    Minimum="0"
                                     SpinButtonPlacementMode="Inline"
-                                    Value="1920"
                                     ValueChanged="ImageRules_Changed" />
                                 <NumberBox
                                     x:Name="ImageHeightBox"
                                     Grid.Column="1"
                                     Header="Height"
-                                    Minimum="0"
                                     SpinButtonPlacementMode="Inline"
-                                    Value="1080"
                                     ValueChanged="ImageRules_Changed" />
                             </Grid>
                             <CheckBox

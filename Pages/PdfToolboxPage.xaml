@@ -159,18 +159,12 @@
                                 <NumberBox
                                     x:Name="PdfDpiBox"
                                     Header="DPI"
-                                    Maximum="600"
-                                    Minimum="72"
-                                    SpinButtonPlacementMode="Inline"
-                                    Value="150" />
+                                    SpinButtonPlacementMode="Inline" />
                                 <NumberBox
                                     x:Name="PdfQualityBox"
                                     Grid.Column="1"
                                     Header="Quality"
-                                    Maximum="100"
-                                    Minimum="1"
-                                    SpinButtonPlacementMode="Inline"
-                                    Value="82" />
+                                    SpinButtonPlacementMode="Inline" />
                             </Grid>
                             <ComboBox
                                 x:Name="PdfImageFormatComboBox"

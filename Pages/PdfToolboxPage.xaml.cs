@@ -13,13 +13,27 @@ public sealed partial class PdfToolboxPage : Page
     private readonly ObservableCollection<string> _pdfNames = [];
     private readonly List<StorageFile> _pdfFiles = [];
     private string? _outputDirectory;
+    private bool _isInitialized;
 
     public PdfToolboxPage()
     {
         InitializeComponent();
+        ConfigureNumberBoxes();
         PdfListView.ItemsSource = _pdfNames;
+        _isInitialized = true;
         UpdateOperationVisibility();
         UpdateRunState();
+    }
+
+    private void ConfigureNumberBoxes()
+    {
+        PdfDpiBox.Maximum = 600;
+        PdfDpiBox.Value = 150;
+        PdfDpiBox.Minimum = 72;
+
+        PdfQualityBox.Maximum = 100;
+        PdfQualityBox.Value = 82;
+        PdfQualityBox.Minimum = 1;
     }
 
     private async void AddPdfsButton_Click(object sender, RoutedEventArgs e)
@@ -69,6 +83,11 @@ public sealed partial class PdfToolboxPage : Page
 
     private void PdfOperationComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
     {
+        if (!_isInitialized)
+        {
+            return;
+        }
+
         UpdateOperationVisibility();
         UpdateRunState();
     }

@@ -18,10 +18,24 @@ public sealed partial class ImageConverterPage : Page
     public ImageConverterPage()
     {
         InitializeComponent();
+        ConfigureNumberBoxes();
         ImagePreviewListView.ItemsSource = _previewItems;
         _isInitialized = true;
         UpdateRuleAvailability();
         RefreshPreview();
+    }
+
+    private void ConfigureNumberBoxes()
+    {
+        ImageQualityBox.Maximum = 100;
+        ImageQualityBox.Value = 85;
+        ImageQualityBox.Minimum = 1;
+
+        ImageWidthBox.Value = 1920;
+        ImageWidthBox.Minimum = 0;
+
+        ImageHeightBox.Value = 1080;
+        ImageHeightBox.Minimum = 0;
     }
 
     private async void AddImagesButton_Click(object sender, RoutedEventArgs e)
