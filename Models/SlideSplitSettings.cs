@@ -11,4 +11,4 @@ public sealed record SlideSplitSettings(
     bool ExportPng,
     bool ExportPdf,
     bool VisualCropMode,
-    int FragmentsPerSlide);
+    IReadOnlyList<NormalizedCropRectangle> VisualCropRectangles);

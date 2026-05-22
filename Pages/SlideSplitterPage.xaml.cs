@@ -13,15 +13,23 @@ using Windows.Storage.Streams;
 namespace Toolbox.Pages;
 
 using WinRectangle = Microsoft.UI.Xaml.Shapes.Rectangle;
+using WinPoint = Windows.Foundation.Point;
+using WinRect = Windows.Foundation.Rect;
 
 public sealed partial class SlideSplitterPage : Page
 {
     private readonly PdfSlideSplitService _slideSplitService = new();
-    private readonly List<WinRectangle> _fragmentLines = [];
+    private readonly List<NormalizedCropRectangle> _visualCropRectangles = [];
+    private readonly List<WinRectangle> _visualCropShapes = [];
     private StorageFile? _selectedPdfFile;
     private string? _outputDirectory;
+    private double _previewPixelWidth;
+    private double _previewPixelHeight;
     private bool _isUpdatingSplit;
     private bool _isDraggingSplit;
+    private bool _isDrawingCropRectangle;
+    private WinPoint _cropStartPoint;
+    private WinRectangle? _activeCropShape;
 
     public SlideSplitterPage()
     {
@@ -55,6 +63,7 @@ public sealed partial class SlideSplitterPage : Page
         OutputPathBox.Text = _outputDirectory;
         ExtractButton.IsEnabled = true;
         SlideInfoBar.IsOpen = false;
+        ClearCropRectangles();
         AppendLog("PDF loaded: " + Path.GetFileName(file.Path));
 
         await LoadPreviewAsync(file);
@@ -90,6 +99,12 @@ public sealed partial class SlideSplitterPage : Page
         if (!settings.ExportPng && !settings.ExportPdf)
         {
             ShowInfo("Select PNG, PDF, or both outputs.", InfoBarSeverity.Warning);
+            return;
+        }
+
+        if (settings.VisualCropMode && settings.VisualCropRectangles.Count < 2)
+        {
+            ShowInfo("Draw at least two crop rectangles before exporting in visual crop mode.", InfoBarSeverity.Warning);
             return;
         }
 
@@ -137,7 +152,10 @@ public sealed partial class SlideSplitterPage : Page
         try
         {
             byte[] previewBytes = await _slideSplitService.RenderFirstPagePreviewAsync(pdfFile);
-            PreviewImage.Source = await LoadBitmapAsync(previewBytes);
+            BitmapImage preview = await LoadBitmapAsync(previewBytes);
+            _previewPixelWidth = preview.PixelWidth;
+            _previewPixelHeight = preview.PixelHeight;
+            PreviewImage.Source = preview;
             PreviewPlaceholder.Visibility = Visibility.Collapsed;
             SlideStatusText.Text = "Ready";
             SlideProgressBar.Value = 0;
@@ -187,7 +205,7 @@ public sealed partial class SlideSplitterPage : Page
             ExportPngCheckBox.IsChecked == true,
             ExportPdfCheckBox.IsChecked == true,
             VisualCropCheckBox.IsChecked == true,
-            (int)NumberOrDefault(FragmentCountBox, 2));
+            _visualCropRectangles.ToArray());
     }
 
     private static double NumberOrDefault(NumberBox numberBox, double fallback)
@@ -223,13 +241,14 @@ public sealed partial class SlideSplitterPage : Page
 
     private void VisualCropSettings_Changed(object sender, RoutedEventArgs e)
     {
-        FragmentCountBox.IsEnabled = VisualCropCheckBox.IsChecked == true;
+        ClearCropRectanglesButton.IsEnabled = VisualCropCheckBox.IsChecked == true && _visualCropRectangles.Count > 0;
+        UpdateCropRectangleCount();
         UpdateSplitLinePosition();
     }
 
-    private void FragmentCountBox_ValueChanged(NumberBox sender, NumberBoxValueChangedEventArgs args)
+    private void ClearCropRectanglesButton_Click(object sender, RoutedEventArgs e)
     {
-        UpdateSplitLinePosition();
+        ClearCropRectangles();
     }
 
     private void PreviewOverlay_SizeChanged(object sender, SizeChangedEventArgs e)
@@ -244,13 +263,26 @@ public sealed partial class SlideSplitterPage : Page
             return;
         }
 
-        _isDraggingSplit = true;
-        PreviewOverlay.CapturePointer(e.Pointer);
-        SetSplitFromPointer(e);
+        if (VisualCropCheckBox.IsChecked == true)
+        {
+            StartCropRectangle(e);
+        }
+        else
+        {
+            _isDraggingSplit = true;
+            PreviewOverlay.CapturePointer(e.Pointer);
+            SetSplitFromPointer(e);
+        }
     }
 
     private void PreviewOverlay_PointerMoved(object sender, PointerRoutedEventArgs e)
     {
+        if (_isDrawingCropRectangle)
+        {
+            UpdateActiveCropRectangle(e);
+            return;
+        }
+
         if (_isDraggingSplit)
         {
             SetSplitFromPointer(e);
@@ -259,6 +291,12 @@ public sealed partial class SlideSplitterPage : Page
 
     private void PreviewOverlay_PointerReleased(object sender, PointerRoutedEventArgs e)
     {
+        if (_isDrawingCropRectangle)
+        {
+            FinishCropRectangle(e);
+            return;
+        }
+
         if (!_isDraggingSplit)
         {
             return;
@@ -276,7 +314,13 @@ public sealed partial class SlideSplitterPage : Page
         }
 
         double y = e.GetCurrentPoint(PreviewOverlay).Position.Y;
-        double percent = Math.Clamp(y / PreviewOverlay.ActualHeight * 100.0, SplitSlider.Minimum, SplitSlider.Maximum);
+        WinRect bounds = GetPreviewImageBounds();
+        if (bounds.Height <= 0)
+        {
+            return;
+        }
+
+        double percent = Math.Clamp((y - bounds.Y) / bounds.Height * 100.0, SplitSlider.Minimum, SplitSlider.Maximum);
         SplitSlider.Value = percent;
     }
 
@@ -289,54 +333,207 @@ public sealed partial class SlideSplitterPage : Page
             return;
         }
 
-        double splitY = height * SplitSlider.Value / 100.0;
-        SplitLine.Width = width;
-        SplitLineHitTarget.Width = width;
-        Canvas.SetTop(SplitLine, Math.Clamp(splitY - 1.5, 0, height));
-        Canvas.SetTop(SplitLineHitTarget, Math.Clamp(splitY - 9, 0, height));
+        WinRect bounds = GetPreviewImageBounds();
+        double splitY = bounds.Y + (bounds.Height * SplitSlider.Value / 100.0);
+        SplitLine.Width = bounds.Width;
+        SplitLineHitTarget.Width = bounds.Width;
+        Canvas.SetLeft(SplitLine, bounds.X);
+        Canvas.SetLeft(SplitLineHitTarget, bounds.X);
+        Canvas.SetTop(SplitLine, Math.Clamp(splitY - 1.5, bounds.Y, bounds.Y + bounds.Height));
+        Canvas.SetTop(SplitLineHitTarget, Math.Clamp(splitY - 9, bounds.Y, bounds.Y + bounds.Height));
 
-        RefreshFragmentLines(width, height);
+        RefreshVisualCropShapes();
     }
 
-    private void RefreshFragmentLines(double width, double height)
+    private WinRect GetPreviewImageBounds()
     {
-        foreach (WinRectangle line in _fragmentLines)
+        double width = PreviewOverlay.ActualWidth;
+        double height = PreviewOverlay.ActualHeight;
+        if (width <= 0 || height <= 0 || _previewPixelWidth <= 0 || _previewPixelHeight <= 0)
         {
-            PreviewOverlay.Children.Remove(line);
+            return new WinRect(0, 0, width, height);
         }
 
-        _fragmentLines.Clear();
+        double scale = Math.Min(width / _previewPixelWidth, height / _previewPixelHeight);
+        double displayWidth = _previewPixelWidth * scale;
+        double displayHeight = _previewPixelHeight * scale;
+        return new WinRect((width - displayWidth) / 2.0, (height - displayHeight) / 2.0, displayWidth, displayHeight);
+    }
+
+    private void StartCropRectangle(PointerRoutedEventArgs e)
+    {
+        WinRect bounds = GetPreviewImageBounds();
+        if (bounds.Width <= 0 || bounds.Height <= 0)
+        {
+            return;
+        }
+
+        WinPoint pointer = e.GetCurrentPoint(PreviewOverlay).Position;
+        if (!Contains(bounds, pointer))
+        {
+            return;
+        }
+
+        _isDrawingCropRectangle = true;
+        _cropStartPoint = ClampToBounds(pointer, bounds);
+        _activeCropShape = CreateCropShape();
+        PreviewOverlay.Children.Add(_activeCropShape);
+        Canvas.SetZIndex(_activeCropShape, 5);
+        PreviewOverlay.CapturePointer(e.Pointer);
+        UpdateCropShape(_activeCropShape, _cropStartPoint, _cropStartPoint);
+    }
+
+    private void UpdateActiveCropRectangle(PointerRoutedEventArgs e)
+    {
+        if (_activeCropShape is null)
+        {
+            return;
+        }
+
+        WinPoint pointer = ClampToBounds(e.GetCurrentPoint(PreviewOverlay).Position, GetPreviewImageBounds());
+        UpdateCropShape(_activeCropShape, _cropStartPoint, pointer);
+    }
+
+    private void FinishCropRectangle(PointerRoutedEventArgs e)
+    {
+        if (_activeCropShape is null)
+        {
+            _isDrawingCropRectangle = false;
+            return;
+        }
+
+        WinRect bounds = GetPreviewImageBounds();
+        WinPoint endPoint = ClampToBounds(e.GetCurrentPoint(PreviewOverlay).Position, bounds);
+        WinRect absoluteCrop = BuildRect(_cropStartPoint, endPoint);
+        PreviewOverlay.ReleasePointerCapture(e.Pointer);
+        _isDrawingCropRectangle = false;
+
+        if (absoluteCrop.Width < 8 || absoluteCrop.Height < 8)
+        {
+            PreviewOverlay.Children.Remove(_activeCropShape);
+            _activeCropShape = null;
+            return;
+        }
+
+        NormalizedCropRectangle normalized = ToNormalizedCrop(absoluteCrop, bounds);
+        _visualCropRectangles.Add(normalized);
+        _visualCropShapes.Add(_activeCropShape);
+        _activeCropShape = null;
+        UpdateCropRectangleCount();
+    }
+
+    private void RefreshVisualCropShapes()
+    {
+        foreach (WinRectangle shape in _visualCropShapes)
+        {
+            PreviewOverlay.Children.Remove(shape);
+        }
+
+        _visualCropShapes.Clear();
 
         if (PreviewImage.Source is null || VisualCropCheckBox.IsChecked != true)
         {
             return;
         }
 
-        int fragments = Math.Max(2, (int)NumberOrDefault(FragmentCountBox, 2));
-        double split = SplitSlider.Value;
-        AddFragmentLines(width, height, startPercent: 0, endPercent: split, fragments);
-        AddFragmentLines(width, height, startPercent: split, endPercent: 100, fragments);
+        WinRect bounds = GetPreviewImageBounds();
+        foreach (NormalizedCropRectangle rectangle in _visualCropRectangles)
+        {
+            WinRectangle shape = CreateCropShape();
+            WinRect absolute = FromNormalizedCrop(rectangle, bounds);
+            Canvas.SetLeft(shape, absolute.X);
+            Canvas.SetTop(shape, absolute.Y);
+            shape.Width = absolute.Width;
+            shape.Height = absolute.Height;
+            Canvas.SetZIndex(shape, 5);
+            PreviewOverlay.Children.Add(shape);
+            _visualCropShapes.Add(shape);
+        }
     }
 
-    private void AddFragmentLines(double width, double height, double startPercent, double endPercent, int fragments)
+    private static WinRectangle CreateCropShape()
     {
-        for (int index = 1; index < fragments; index++)
+        return new WinRectangle
         {
-            double percent = startPercent + ((endPercent - startPercent) * index / fragments);
-            double y = height * percent / 100.0;
-            var line = new WinRectangle
-            {
-                Width = width,
-                Height = 2,
-                Fill = new SolidColorBrush(Colors.MediumSeaGreen),
-                Opacity = 0.85
-            };
+            Stroke = new SolidColorBrush(Colors.MediumSeaGreen),
+            StrokeThickness = 2,
+            Fill = new SolidColorBrush(Colors.Transparent),
+            Opacity = 0.95
+        };
+    }
 
-            Canvas.SetTop(line, Math.Clamp(y - 1, 0, height));
-            Canvas.SetZIndex(line, 2);
-            PreviewOverlay.Children.Add(line);
-            _fragmentLines.Add(line);
+    private static void UpdateCropShape(WinRectangle shape, WinPoint start, WinPoint end)
+    {
+        WinRect rect = BuildRect(start, end);
+        Canvas.SetLeft(shape, rect.X);
+        Canvas.SetTop(shape, rect.Y);
+        shape.Width = rect.Width;
+        shape.Height = rect.Height;
+    }
+
+    private static WinRect BuildRect(WinPoint first, WinPoint second)
+    {
+        double x = Math.Min(first.X, second.X);
+        double y = Math.Min(first.Y, second.Y);
+        return new WinRect(x, y, Math.Abs(second.X - first.X), Math.Abs(second.Y - first.Y));
+    }
+
+    private static bool Contains(WinRect rect, WinPoint point)
+    {
+        return point.X >= rect.X
+            && point.X <= rect.X + rect.Width
+            && point.Y >= rect.Y
+            && point.Y <= rect.Y + rect.Height;
+    }
+
+    private static WinPoint ClampToBounds(WinPoint point, WinRect bounds)
+    {
+        return new WinPoint(
+            Math.Clamp(point.X, bounds.X, bounds.X + bounds.Width),
+            Math.Clamp(point.Y, bounds.Y, bounds.Y + bounds.Height));
+    }
+
+    private static NormalizedCropRectangle ToNormalizedCrop(WinRect crop, WinRect bounds)
+    {
+        return new NormalizedCropRectangle(
+            (crop.X - bounds.X) / bounds.Width,
+            (crop.Y - bounds.Y) / bounds.Height,
+            crop.Width / bounds.Width,
+            crop.Height / bounds.Height);
+    }
+
+    private static WinRect FromNormalizedCrop(NormalizedCropRectangle crop, WinRect bounds)
+    {
+        return new WinRect(
+            bounds.X + (crop.X * bounds.Width),
+            bounds.Y + (crop.Y * bounds.Height),
+            crop.Width * bounds.Width,
+            crop.Height * bounds.Height);
+    }
+
+    private void ClearCropRectangles()
+    {
+        foreach (WinRectangle shape in _visualCropShapes)
+        {
+            PreviewOverlay.Children.Remove(shape);
         }
+
+        if (_activeCropShape is not null)
+        {
+            PreviewOverlay.Children.Remove(_activeCropShape);
+            _activeCropShape = null;
+        }
+
+        _visualCropShapes.Clear();
+        _visualCropRectangles.Clear();
+        UpdateCropRectangleCount();
+    }
+
+    private void UpdateCropRectangleCount()
+    {
+        int count = _visualCropRectangles.Count;
+        CropRectangleCountText.Text = count == 1 ? "1 rectangle" : $"{count} rectangles";
+        ClearCropRectanglesButton.IsEnabled = VisualCropCheckBox.IsChecked == true && count > 0;
     }
 
     private void SetBusy(bool isBusy)
@@ -355,7 +552,7 @@ public sealed partial class SlideSplitterPage : Page
         ExportPngCheckBox.IsEnabled = !isBusy;
         ExportPdfCheckBox.IsEnabled = !isBusy;
         VisualCropCheckBox.IsEnabled = !isBusy;
-        FragmentCountBox.IsEnabled = !isBusy && VisualCropCheckBox.IsChecked == true;
+        ClearCropRectanglesButton.IsEnabled = !isBusy && VisualCropCheckBox.IsChecked == true && _visualCropRectangles.Count > 0;
     }
 
     private void AppendLog(string message)

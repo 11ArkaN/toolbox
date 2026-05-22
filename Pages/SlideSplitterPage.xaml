@@ -87,7 +87,7 @@
                                     Grid.Column="1"
                                     Click="BrowsePdfButton_Click">
                                     <StackPanel Orientation="Horizontal" Spacing="8">
-                                        <FontIcon FontSize="14" Glyph="&#xE8A5;" />
+                                        <SymbolIcon Symbol="Document" />
                                         <TextBlock Text="PDF" />
                                     </StackPanel>
                                 </Button>
@@ -106,7 +106,7 @@
                                     Grid.Column="1"
                                     Click="ChooseOutputButton_Click">
                                     <StackPanel Orientation="Horizontal" Spacing="8">
-                                        <FontIcon FontSize="14" Glyph="&#xE8B7;" />
+                                        <SymbolIcon Symbol="Folder" />
                                         <TextBlock Text="Folder" />
                                     </StackPanel>
                                 </Button>
@@ -220,7 +220,7 @@
                             <Grid ColumnSpacing="8">
                                 <Grid.ColumnDefinitions>
                                     <ColumnDefinition Width="*" />
-                                    <ColumnDefinition Width="120" />
+                                    <ColumnDefinition Width="Auto" />
                                 </Grid.ColumnDefinitions>
                                 <CheckBox
                                     x:Name="VisualCropCheckBox"
@@ -228,17 +228,23 @@
                                     Checked="VisualCropSettings_Changed"
                                     Content="Visual crop"
                                     Unchecked="VisualCropSettings_Changed" />
-                                <NumberBox
-                                    x:Name="FragmentCountBox"
+                                <Button
+                                    x:Name="ClearCropRectanglesButton"
                                     Grid.Column="1"
-                                    Header="Fragments"
+                                    Click="ClearCropRectanglesButton_Click"
                                     IsEnabled="False"
-                                    Maximum="24"
-                                    Minimum="2"
-                                    SpinButtonPlacementMode="Inline"
-                                    Value="2"
-                                    ValueChanged="FragmentCountBox_ValueChanged" />
+                                    ToolTipService.ToolTip="Clear rectangles">
+                                    <StackPanel Orientation="Horizontal" Spacing="8">
+                                        <SymbolIcon Symbol="Delete" />
+                                        <TextBlock Text="Clear" />
+                                    </StackPanel>
+                                </Button>
                             </Grid>
+                            <TextBlock
+                                x:Name="CropRectangleCountText"
+                                Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                                Text="0 rectangles"
+                                TextWrapping="WrapWholeWords" />
                         </StackPanel>
                     </Border>
 
@@ -248,7 +254,7 @@
                         IsEnabled="False"
                         Style="{StaticResource AccentButtonStyle}">
                         <StackPanel Orientation="Horizontal" Spacing="8">
-                            <FontIcon FontSize="14" Glyph="&#xE74E;" />
+                            <SymbolIcon Symbol="Download" />
                             <TextBlock Text="Extract slides" />
                         </StackPanel>
                     </Button>

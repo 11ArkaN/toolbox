@@ -9,22 +9,70 @@
     Title="Toolbox"
     mc:Ignorable="d">
     <Grid>
-        <TabView
-            x:Name="TabControl"
-            VerticalAlignment="Stretch"
-            IsAddTabButtonVisible="False">
-            <TabView.TabStripHeader>
-                <Grid>
-                    <Image
-                        Width="16"
-                        Margin="16,4,12,0"
-                        VerticalAlignment="Center"
-                        Source="/Assets/AppIcon.ico" />
-                </Grid>
-            </TabView.TabStripHeader>
-            <TabView.TabStripFooter>
-                <Grid x:Name="CustomDragRegion" />
-            </TabView.TabStripFooter>
-        </TabView>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="48" />
+            <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
+
+        <Grid
+            x:Name="TitleBar"
+            Background="{ThemeResource SolidBackgroundFillColorBaseBrush}">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto" />
+                <ColumnDefinition Width="Auto" />
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="Auto" />
+            </Grid.ColumnDefinitions>
+            <Image
+                Width="18"
+                Height="18"
+                Margin="16,0,10,0"
+                VerticalAlignment="Center"
+                Source="/Assets/AppIcon.ico" />
+            <TextBlock
+                Grid.Column="1"
+                VerticalAlignment="Center"
+                FontWeight="SemiBold"
+                Text="Toolbox" />
+            <Grid
+                x:Name="CustomDragRegion"
+                Grid.Column="2" />
+            <Grid
+                x:Name="CaptionButtonPadding"
+                Grid.Column="3" />
+        </Grid>
+
+        <NavigationView
+            x:Name="Sidebar"
+            Grid.Row="1"
+            CompactPaneLength="56"
+            IsBackButtonVisible="Collapsed"
+            IsPaneToggleButtonVisible="False"
+            IsSettingsVisible="False"
+            IsPaneOpen="True"
+            OpenPaneLength="224"
+            PaneTitle="Tools"
+            PaneDisplayMode="Left"
+            SelectionChanged="Sidebar_SelectionChanged">
+            <NavigationView.MenuItems>
+                <NavigationViewItem
+                    x:Name="AudioNavigationItem"
+                    Content="Audio Splitter"
+                    Tag="audio">
+                    <NavigationViewItem.Icon>
+                        <SymbolIcon Symbol="Audio" />
+                    </NavigationViewItem.Icon>
+                </NavigationViewItem>
+                <NavigationViewItem
+                    x:Name="SlideNavigationItem"
+                    Content="Slide Splitter"
+                    Tag="slides">
+                    <NavigationViewItem.Icon>
+                        <SymbolIcon Symbol="Document" />
+                    </NavigationViewItem.Icon>
+                </NavigationViewItem>
+            </NavigationView.MenuItems>
+            <Frame x:Name="ContentFrame" />
+        </NavigationView>
     </Grid>
 </Window>

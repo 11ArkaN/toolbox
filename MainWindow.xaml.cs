@@ -17,8 +17,8 @@ public sealed partial class MainWindow : Window
         InitializeComponent();
         ApplySystemBackdrop();
 
-        // Extend content into the title bar and use the TabView's
-        // drag region so the tab strip acts as the title bar area.
+        // Extend content into the title bar and use a dedicated drag region
+        // so the sidebar remains fully interactive.
         ExtendsContentIntoTitleBar = true;
         SetTitleBar(CustomDragRegion);
         AppWindow.SetIcon("Assets/AppIcon.ico");
@@ -29,9 +29,8 @@ public sealed partial class MainWindow : Window
         AppWindow.Changed += OnAppWindowChanged;
         UpdateCaptionButtonInset();
 
-        AddTab("Audio Splitter", typeof(AudioSplitterPage), "\uE768");
-        AddTab("Slide Splitter", typeof(SlideSplitterPage), "\uE8A5");
-        TabControl.SelectedIndex = 0;
+        Sidebar.SelectedItem = AudioNavigationItem;
+        NavigateToTool("audio");
     }
 
     private void ApplySystemBackdrop()
@@ -58,27 +57,28 @@ public sealed partial class MainWindow : Window
             scale = 1.0;
         }
 
-        CustomDragRegion.MinWidth = AppWindow.TitleBar.RightInset / scale;
+        CaptionButtonPadding.Width = AppWindow.TitleBar.RightInset / scale;
     }
 
-    private TabViewItem AddTab(string header, System.Type pageType, string glyph)
+    private void Sidebar_SelectionChanged(NavigationView sender, NavigationViewSelectionChangedEventArgs args)
     {
-        var tab = new TabViewItem
+        if (args.SelectedItemContainer is NavigationViewItem item && item.Tag is string tag)
         {
-            Header = header,
-            IconSource = new FontIconSource
-            {
-                Glyph = glyph,
-                FontFamily = new FontFamily("Segoe Fluent Icons")
-            },
-            IsClosable = false
+            NavigateToTool(tag);
+        }
+    }
+
+    private void NavigateToTool(string tag)
+    {
+        Type pageType = tag switch
+        {
+            "slides" => typeof(SlideSplitterPage),
+            _ => typeof(AudioSplitterPage)
         };
 
-        var frame = new Frame();
-        frame.Navigate(pageType);
-        tab.Content = frame;
-
-        TabControl.TabItems.Add(tab);
-        return tab;
+        if (ContentFrame.CurrentSourcePageType != pageType)
+        {
+            ContentFrame.Navigate(pageType);
+        }
     }
 }

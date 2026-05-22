@@ -43,6 +43,11 @@ public sealed class PdfSlideSplitService
             throw new InvalidOperationException("Select PNG, PDF, or both outputs.");
         }
 
+        if (settings.VisualCropMode && settings.VisualCropRectangles.Count < 2)
+        {
+            throw new InvalidOperationException("Visual crop mode requires at least two selected rectangles.");
+        }
+
         string pdfPath = pdfFile.Path;
         if (!File.Exists(pdfPath))
         {
@@ -64,8 +69,8 @@ public sealed class PdfSlideSplitService
 
         var slideImages = new List<SlideImage>();
         int attemptedSlices = 0;
-        int fragmentsPerSlide = settings.VisualCropMode ? Math.Max(2, settings.FragmentsPerSlide) : 1;
-        int totalSlices = checked((int)sourceDocument.PageCount * 2 * fragmentsPerSlide);
+        int slicesPerPage = settings.VisualCropMode ? settings.VisualCropRectangles.Count : 2;
+        int totalSlices = checked((int)sourceDocument.PageCount * slicesPerPage);
 
         try
         {
@@ -88,8 +93,7 @@ public sealed class PdfSlideSplitService
                     }
 
                     using Image<Rgba32> slide = image.Clone(context => context.Crop(segment.Crop));
-                    string fragmentSuffix = segment.FragmentNumber is null ? string.Empty : $"_f{segment.FragmentNumber:00}";
-                    string fileName = $"{baseName}_p{pageIndex + 1:000}_s{segment.SlideNumber}{fragmentSuffix}.png";
+                    string fileName = $"{baseName}_p{pageIndex + 1:000}_{segment.Name}.png";
                     string imagePath = settings.ExportPng
                         ? Path.Combine(outputDirectory, fileName)
                         : Path.Combine(tempDirectory!, fileName);
@@ -169,6 +173,25 @@ public sealed class PdfSlideSplitService
         int height,
         SlideSplitSettings settings)
     {
+        if (settings.VisualCropMode)
+        {
+            for (int index = 0; index < settings.VisualCropRectangles.Count; index++)
+            {
+                NormalizedCropRectangle rectangle = settings.VisualCropRectangles[index];
+                yield return new CropSegment(
+                    $"r{index + 1:00}",
+                    ClampCrop(
+                        PixelRatio(width, rectangle.X),
+                        PixelRatio(height, rectangle.Y),
+                        PixelRatio(width, rectangle.Width),
+                        PixelRatio(height, rectangle.Height),
+                        width,
+                        height));
+            }
+
+            yield break;
+        }
+
         int left = PixelPercent(width, settings.MarginLeftPercent);
         int right = width - PixelPercent(width, settings.MarginRightPercent);
         int top = PixelPercent(height, settings.MarginTopPercent);
@@ -183,38 +206,8 @@ public sealed class PdfSlideSplitService
         var topSlide = ClampCrop(left, top, cropWidth, topBottom - top, width, height);
         var bottomSlide = ClampCrop(left, bottomTop, cropWidth, bottom - bottomTop, width, height);
 
-        foreach (CropSegment segment in SplitSlideIntoFragments(1, topSlide, settings))
-        {
-            yield return segment;
-        }
-
-        foreach (CropSegment segment in SplitSlideIntoFragments(2, bottomSlide, settings))
-        {
-            yield return segment;
-        }
-    }
-
-    private static IEnumerable<CropSegment> SplitSlideIntoFragments(
-        int slideNumber,
-        ImageSharpRectangle slide,
-        SlideSplitSettings settings)
-    {
-        if (!settings.VisualCropMode)
-        {
-            yield return new CropSegment(slideNumber, null, slide);
-            yield break;
-        }
-
-        int count = Math.Max(2, settings.FragmentsPerSlide);
-        for (int index = 0; index < count; index++)
-        {
-            int y0 = slide.Y + (int)Math.Round(slide.Height * index / (double)count);
-            int y1 = slide.Y + (int)Math.Round(slide.Height * (index + 1) / (double)count);
-            yield return new CropSegment(
-                slideNumber,
-                index + 1,
-                new ImageSharpRectangle(slide.X, y0, slide.Width, Math.Max(0, y1 - y0)));
-        }
+        yield return new CropSegment("s1", topSlide);
+        yield return new CropSegment("s2", bottomSlide);
     }
 
     private static ImageSharpRectangle ClampCrop(int x, int y, int width, int height, int imageWidth, int imageHeight)
@@ -234,6 +227,11 @@ public sealed class PdfSlideSplitService
     private static int PixelPercent(int value, double percent)
     {
         return (int)Math.Round(value * Math.Clamp(percent, 0, 100) / 100.0);
+    }
+
+    private static int PixelRatio(int value, double ratio)
+    {
+        return (int)Math.Round(value * Math.Clamp(ratio, 0, 1));
     }
 
     private static int Percent(int done, int total)
@@ -266,5 +264,5 @@ public sealed class PdfSlideSplitService
 
     private sealed record SlideImage(string Path, int Width, int Height);
 
-    private sealed record CropSegment(int SlideNumber, int? FragmentNumber, ImageSharpRectangle Crop);
+    private sealed record CropSegment(string Name, ImageSharpRectangle Crop);
 }
