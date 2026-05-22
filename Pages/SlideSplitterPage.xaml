@@ -129,9 +129,6 @@
                                 </Grid.ColumnDefinitions>
                                 <Slider
                                     x:Name="SplitSlider"
-                                    Maximum="90"
-                                    Minimum="10"
-                                    Value="50"
                                     ValueChanged="SplitSlider_ValueChanged" />
                                 <NumberBox
                                     x:Name="SplitNumberBox"

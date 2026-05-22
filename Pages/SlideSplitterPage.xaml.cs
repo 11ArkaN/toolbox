@@ -26,8 +26,19 @@ public sealed partial class SlideSplitterPage : Page
     public SlideSplitterPage()
     {
         InitializeComponent();
+        ConfigureControls();
         Canvas.SetZIndex(SplitLine, 3);
         Canvas.SetZIndex(SplitLineHitTarget, 4);
+    }
+
+    private void ConfigureControls()
+    {
+        _isUpdatingSplit = true;
+        SplitSlider.Maximum = 90;
+        SplitSlider.Value = 50;
+        SplitSlider.Minimum = 10;
+        SplitNumberBox.Value = 50;
+        _isUpdatingSplit = false;
     }
 
     private async void BrowsePdfButton_Click(object sender, RoutedEventArgs e)

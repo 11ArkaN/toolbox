@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 using Microsoft.UI.Windowing;
+using Microsoft.UI.Composition.SystemBackdrops;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Media;
@@ -14,6 +15,7 @@ public sealed partial class MainWindow : Window
     public MainWindow()
     {
         InitializeComponent();
+        ApplySystemBackdrop();
 
         // Extend content into the title bar and use the TabView's
         // drag region so the tab strip acts as the title bar area.
@@ -30,6 +32,13 @@ public sealed partial class MainWindow : Window
         AddTab("Audio Splitter", typeof(AudioSplitterPage), "\uE768");
         AddTab("Slide Splitter", typeof(SlideSplitterPage), "\uE8A5");
         TabControl.SelectedIndex = 0;
+    }
+
+    private void ApplySystemBackdrop()
+    {
+        SystemBackdrop = MicaController.IsSupported()
+            ? new MicaBackdrop { Kind = MicaKind.BaseAlt }
+            : new DesktopAcrylicBackdrop();
     }
 
     private void OnAppWindowChanged(AppWindow sender, AppWindowChangedEventArgs args)

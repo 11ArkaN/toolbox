@@ -1,9 +1,6 @@
 {
   "profiles": {
-    "Toolbox (Package)": {
-      "commandName": "MsixPackage"
-    },
-    "Toolbox (Unpackaged)": {
+    "Toolbox": {
       "commandName": "Project"
     }
   }
