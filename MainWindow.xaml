@@ -71,6 +71,14 @@
                         <SymbolIcon Symbol="Document" />
                     </NavigationViewItem.Icon>
                 </NavigationViewItem>
+                <NavigationViewItem
+                    x:Name="RenameNavigationItem"
+                    Content="Batch Renamer"
+                    Tag="rename">
+                    <NavigationViewItem.Icon>
+                        <SymbolIcon Symbol="Edit" />
+                    </NavigationViewItem.Icon>
+                </NavigationViewItem>
             </NavigationView.MenuItems>
             <Frame x:Name="ContentFrame" />
         </NavigationView>

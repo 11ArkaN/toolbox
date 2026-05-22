@@ -1,0 +1,367 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<Page
+    x:Class="Toolbox.Pages.FileRenamerPage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    Background="{ThemeResource SolidBackgroundFillColorTertiaryBrush}"
+    mc:Ignorable="d">
+
+    <Grid Padding="24" RowSpacing="18">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
+
+        <StackPanel Spacing="4">
+            <TextBlock Style="{StaticResource TitleTextBlockStyle}" Text="Batch Renamer" />
+            <TextBlock Foreground="{ThemeResource TextFillColorSecondaryBrush}" Text="Rename many files with readable rules and a live preview." />
+        </StackPanel>
+
+        <Grid Grid.Row="1" ColumnSpacing="18">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="380" />
+                <ColumnDefinition Width="*" />
+            </Grid.ColumnDefinitions>
+
+            <ScrollViewer VerticalScrollBarVisibility="Auto">
+                <StackPanel Spacing="14">
+                    <Border
+                        Padding="16"
+                        Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
+                        BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
+                        BorderThickness="1"
+                        CornerRadius="8">
+                        <StackPanel Spacing="12">
+                            <TextBlock Style="{StaticResource SubtitleTextBlockStyle}" Text="Files" />
+                            <Grid ColumnSpacing="8">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*" />
+                                    <ColumnDefinition Width="*" />
+                                </Grid.ColumnDefinitions>
+                                <Button
+                                    x:Name="AddFilesButton"
+                                    Click="AddFilesButton_Click">
+                                    <StackPanel Orientation="Horizontal" Spacing="8">
+                                        <SymbolIcon Symbol="OpenFile" />
+                                        <TextBlock Text="Add files" />
+                                    </StackPanel>
+                                </Button>
+                                <Button
+                                    x:Name="AddFolderButton"
+                                    Grid.Column="1"
+                                    Click="AddFolderButton_Click">
+                                    <StackPanel Orientation="Horizontal" Spacing="8">
+                                        <SymbolIcon Symbol="Folder" />
+                                        <TextBlock Text="Add folder" />
+                                    </StackPanel>
+                                </Button>
+                            </Grid>
+                            <Grid ColumnSpacing="8">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*" />
+                                    <ColumnDefinition Width="Auto" />
+                                </Grid.ColumnDefinitions>
+                                <TextBox
+                                    x:Name="FolderExtensionFilterBox"
+                                    PlaceholderText="Folder filter, e.g. jpg,png,pdf" />
+                                <CheckBox
+                                    x:Name="IncludeSubfoldersCheckBox"
+                                    Grid.Column="1"
+                                    Content="Subfolders" />
+                            </Grid>
+                            <Button
+                                x:Name="ClearFilesButton"
+                                Click="ClearFilesButton_Click">
+                                <StackPanel Orientation="Horizontal" Spacing="8">
+                                    <SymbolIcon Symbol="Delete" />
+                                    <TextBlock Text="Clear list" />
+                                </StackPanel>
+                            </Button>
+                        </StackPanel>
+                    </Border>
+
+                    <Border
+                        Padding="16"
+                        Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
+                        BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
+                        BorderThickness="1"
+                        CornerRadius="8">
+                        <StackPanel Spacing="12">
+                            <TextBlock Style="{StaticResource SubtitleTextBlockStyle}" Text="Name" />
+                            <ComboBox
+                                x:Name="NameModeComboBox"
+                                Header="Base"
+                                SelectedIndex="0"
+                                SelectionChanged="Rules_Changed">
+                                <ComboBoxItem Content="Keep original name" />
+                                <ComboBoxItem Content="Use this base name" />
+                            </ComboBox>
+                            <TextBox
+                                x:Name="BaseNameBox"
+                                Header="Base name"
+                                PlaceholderText="Invoice, Photo, Scan..."
+                                TextChanged="Rules_Changed" />
+                            <Grid ColumnSpacing="8">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*" />
+                                    <ColumnDefinition Width="*" />
+                                </Grid.ColumnDefinitions>
+                                <TextBox
+                                    x:Name="PrefixBox"
+                                    Header="Prefix"
+                                    TextChanged="Rules_Changed" />
+                                <TextBox
+                                    x:Name="SuffixBox"
+                                    Grid.Column="1"
+                                    Header="Suffix"
+                                    TextChanged="Rules_Changed" />
+                            </Grid>
+                            <Grid ColumnSpacing="8">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*" />
+                                    <ColumnDefinition Width="*" />
+                                </Grid.ColumnDefinitions>
+                                <TextBox
+                                    x:Name="FindTextBox"
+                                    Header="Find text"
+                                    TextChanged="Rules_Changed" />
+                                <TextBox
+                                    x:Name="ReplaceTextBox"
+                                    Grid.Column="1"
+                                    Header="Replace with"
+                                    TextChanged="Rules_Changed" />
+                            </Grid>
+                            <ComboBox
+                                x:Name="CaseModeComboBox"
+                                Header="Letter case"
+                                SelectedIndex="0"
+                                SelectionChanged="Rules_Changed">
+                                <ComboBoxItem Content="Keep" />
+                                <ComboBoxItem Content="lowercase" />
+                                <ComboBoxItem Content="UPPERCASE" />
+                                <ComboBoxItem Content="Title Case" />
+                            </ComboBox>
+                        </StackPanel>
+                    </Border>
+
+                    <Border
+                        Padding="16"
+                        Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
+                        BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
+                        BorderThickness="1"
+                        CornerRadius="8">
+                        <StackPanel Spacing="12">
+                            <TextBlock Style="{StaticResource SubtitleTextBlockStyle}" Text="Numbering" />
+                            <CheckBox
+                                x:Name="UseNumberingCheckBox"
+                                Checked="Rules_Changed"
+                                Content="Add number"
+                                IsChecked="True"
+                                Unchecked="Rules_Changed" />
+                            <Grid ColumnSpacing="8">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*" />
+                                    <ColumnDefinition Width="*" />
+                                    <ColumnDefinition Width="*" />
+                                </Grid.ColumnDefinitions>
+                                <NumberBox
+                                    x:Name="NumberStartBox"
+                                    Header="Start"
+                                    SpinButtonPlacementMode="Inline"
+                                    Value="1"
+                                    ValueChanged="Rules_Changed" />
+                                <NumberBox
+                                    x:Name="NumberStepBox"
+                                    Grid.Column="1"
+                                    Header="Step"
+                                    SpinButtonPlacementMode="Inline"
+                                    Value="1"
+                                    ValueChanged="Rules_Changed" />
+                                <NumberBox
+                                    x:Name="NumberPaddingBox"
+                                    Grid.Column="2"
+                                    Header="Digits"
+                                    Maximum="12"
+                                    Minimum="1"
+                                    SpinButtonPlacementMode="Inline"
+                                    Value="3"
+                                    ValueChanged="Rules_Changed" />
+                            </Grid>
+                            <Grid ColumnSpacing="8">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*" />
+                                    <ColumnDefinition Width="*" />
+                                </Grid.ColumnDefinitions>
+                                <ComboBox
+                                    x:Name="NumberPlacementComboBox"
+                                    Header="Position"
+                                    SelectedIndex="1"
+                                    SelectionChanged="Rules_Changed">
+                                    <ComboBoxItem Content="Before name" />
+                                    <ComboBoxItem Content="After name" />
+                                </ComboBox>
+                                <TextBox
+                                    x:Name="NumberSeparatorBox"
+                                    Grid.Column="1"
+                                    Header="Separator"
+                                    Text=" - "
+                                    TextChanged="Rules_Changed" />
+                            </Grid>
+                        </StackPanel>
+                    </Border>
+
+                    <Border
+                        Padding="16"
+                        Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
+                        BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
+                        BorderThickness="1"
+                        CornerRadius="8">
+                        <StackPanel Spacing="12">
+                            <TextBlock Style="{StaticResource SubtitleTextBlockStyle}" Text="Date And Extension" />
+                            <Grid ColumnSpacing="8">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*" />
+                                    <ColumnDefinition Width="*" />
+                                </Grid.ColumnDefinitions>
+                                <ComboBox
+                                    x:Name="DateModeComboBox"
+                                    Header="Date"
+                                    SelectedIndex="0"
+                                    SelectionChanged="Rules_Changed">
+                                    <ComboBoxItem Content="No date" />
+                                    <ComboBoxItem Content="Today" />
+                                    <ComboBoxItem Content="Created date" />
+                                    <ComboBoxItem Content="Modified date" />
+                                </ComboBox>
+                                <ComboBox
+                                    x:Name="DatePlacementComboBox"
+                                    Grid.Column="1"
+                                    Header="Date position"
+                                    SelectedIndex="1"
+                                    SelectionChanged="Rules_Changed">
+                                    <ComboBoxItem Content="Before name" />
+                                    <ComboBoxItem Content="After name" />
+                                </ComboBox>
+                            </Grid>
+                            <Grid ColumnSpacing="8">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*" />
+                                    <ColumnDefinition Width="*" />
+                                </Grid.ColumnDefinitions>
+                                <TextBox
+                                    x:Name="DateFormatBox"
+                                    Header="Date format"
+                                    Text="yyyy-MM-dd"
+                                    TextChanged="Rules_Changed" />
+                                <TextBox
+                                    x:Name="DateSeparatorBox"
+                                    Grid.Column="1"
+                                    Header="Date separator"
+                                    Text=" - "
+                                    TextChanged="Rules_Changed" />
+                            </Grid>
+                            <Grid ColumnSpacing="8">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*" />
+                                    <ColumnDefinition Width="*" />
+                                </Grid.ColumnDefinitions>
+                                <ComboBox
+                                    x:Name="ExtensionModeComboBox"
+                                    Header="Extension"
+                                    SelectedIndex="0"
+                                    SelectionChanged="Rules_Changed">
+                                    <ComboBoxItem Content="Keep" />
+                                    <ComboBoxItem Content="lowercase" />
+                                    <ComboBoxItem Content="UPPERCASE" />
+                                    <ComboBoxItem Content="Replace" />
+                                </ComboBox>
+                                <TextBox
+                                    x:Name="CustomExtensionBox"
+                                    Grid.Column="1"
+                                    Header="New extension"
+                                    PlaceholderText="txt"
+                                    TextChanged="Rules_Changed" />
+                            </Grid>
+                        </StackPanel>
+                    </Border>
+                </StackPanel>
+            </ScrollViewer>
+
+            <Grid Grid.Column="1" RowSpacing="12">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="*" />
+                    <RowDefinition Height="Auto" />
+                </Grid.RowDefinitions>
+
+                <Grid ColumnSpacing="12">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="Auto" />
+                    </Grid.ColumnDefinitions>
+                    <StackPanel Spacing="4">
+                        <TextBlock Style="{StaticResource SubtitleTextBlockStyle}" Text="Preview" />
+                        <TextBlock
+                            x:Name="SummaryText"
+                            Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                            Text="No files selected" />
+                    </StackPanel>
+                    <Button
+                        x:Name="RenameButton"
+                        Grid.Column="1"
+                        Click="RenameButton_Click"
+                        IsEnabled="False"
+                        Style="{StaticResource AccentButtonStyle}">
+                        <StackPanel Orientation="Horizontal" Spacing="8">
+                            <SymbolIcon Symbol="Accept" />
+                            <TextBlock Text="Rename" />
+                        </StackPanel>
+                    </Button>
+                </Grid>
+
+                <Border
+                    Grid.Row="1"
+                    Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
+                    BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
+                    BorderThickness="1"
+                    CornerRadius="8">
+                    <ListView
+                        x:Name="PreviewListView"
+                        SelectionMode="None">
+                        <ListView.ItemTemplate>
+                            <DataTemplate>
+                                <Grid Padding="10" ColumnSpacing="12">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="2*" />
+                                        <ColumnDefinition Width="2*" />
+                                        <ColumnDefinition Width="120" />
+                                    </Grid.ColumnDefinitions>
+                                    <TextBlock
+                                        Text="{Binding OriginalName}"
+                                        TextTrimming="CharacterEllipsis" />
+                                    <TextBlock
+                                        Grid.Column="1"
+                                        FontWeight="SemiBold"
+                                        Text="{Binding NewName}"
+                                        TextTrimming="CharacterEllipsis" />
+                                    <TextBlock
+                                        Grid.Column="2"
+                                        Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                                        Text="{Binding Status}" />
+                                </Grid>
+                            </DataTemplate>
+                        </ListView.ItemTemplate>
+                    </ListView>
+                </Border>
+
+                <InfoBar
+                    x:Name="RenameInfoBar"
+                    Grid.Row="2"
+                    IsOpen="False"
+                    Severity="Informational" />
+            </Grid>
+        </Grid>
+    </Grid>
+</Page>

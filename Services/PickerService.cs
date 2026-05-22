@@ -34,6 +34,19 @@ public static class PickerService
         return await picker.PickSingleFileAsync();
     }
 
+    public static async Task<IReadOnlyList<StorageFile>> PickAnyFilesAsync()
+    {
+        var picker = new FileOpenPicker
+        {
+            SuggestedStartLocation = PickerLocationId.DocumentsLibrary
+        };
+
+        picker.FileTypeFilter.Add("*");
+        InitializeWithWindow.Initialize(picker, App.GetMainWindowHandle());
+        IReadOnlyList<StorageFile> files = await picker.PickMultipleFilesAsync();
+        return files;
+    }
+
     public static async Task<StorageFolder?> PickFolderAsync()
     {
         var picker = new FolderPicker
