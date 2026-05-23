@@ -1,0 +1,76 @@
+<Wix xmlns="http://wixtoolset.org/schemas/v4/wxs"
+     xmlns:ui="http://wixtoolset.org/schemas/v4/wxs/ui">
+  <Package
+    Name="Toolbox"
+    Manufacturer="11ArkaN"
+    Version="$(var.ProductVersion)"
+    UpgradeCode="8f3c6c58-a3bc-48e8-9ed5-7b2f9927e510"
+    Scope="perUserOrMachine">
+
+    <MajorUpgrade DowngradeErrorMessage="A newer version of Toolbox is already installed." />
+    <MediaTemplate EmbedCab="yes" />
+
+    <Property Id="ARPPRODUCTICON" Value="ToolboxIcon" />
+    <Property Id="ARPURLINFOABOUT" Value="https://github.com/11ArkaN/toolbox" />
+
+    <Icon Id="ToolboxIcon" SourceFile="$(var.AppBuildDir)\Assets\AppIcon.ico" />
+
+    <ui:WixUI Id="WixUI_Minimal" />
+
+    <Feature Id="MainFeature" Title="Toolbox" Level="1">
+      <ComponentGroupRef Id="ApplicationFiles" />
+      <ComponentRef Id="InstallDirectoryComponent" />
+      <ComponentRef Id="StartMenuShortcutComponent" />
+    </Feature>
+
+    <StandardDirectory Id="ProgramFiles64Folder">
+      <Directory Id="INSTALLFOLDER" Name="Toolbox" />
+    </StandardDirectory>
+
+    <StandardDirectory Id="ProgramMenuFolder">
+      <Directory Id="ApplicationProgramsFolder" Name="Toolbox" />
+    </StandardDirectory>
+
+    <DirectoryRef Id="ApplicationProgramsFolder">
+      <Component Id="StartMenuShortcutComponent" Guid="2e3ea560-94c8-474c-b258-0b42fcbeb565">
+        <Shortcut
+          Id="ApplicationStartMenuShortcut"
+          Name="Toolbox"
+          Description="Open Toolbox"
+          Target="[INSTALLFOLDER]Toolbox.exe"
+          WorkingDirectory="INSTALLFOLDER"
+          Icon="ToolboxIcon" />
+        <RemoveFolder Id="RemoveApplicationProgramsFolder" On="uninstall" />
+        <RegistryValue
+          Root="HKCU"
+          Key="Software\11ArkaN\Toolbox"
+          Name="StartMenuShortcut"
+          Type="integer"
+          Value="1"
+          KeyPath="yes" />
+      </Component>
+    </DirectoryRef>
+
+    <DirectoryRef Id="INSTALLFOLDER">
+      <Component Id="InstallDirectoryComponent" Guid="e30677c8-7194-4a16-a74a-95a9bb0d1545">
+        <CreateFolder />
+        <RemoveFolder Id="RemoveInstallFolder" On="uninstall" />
+        <RegistryValue
+          Root="HKCU"
+          Key="Software\11ArkaN\Toolbox"
+          Name="InstallDirectory"
+          Type="integer"
+          Value="1"
+          KeyPath="yes" />
+      </Component>
+    </DirectoryRef>
+  </Package>
+
+  <Fragment>
+    <ComponentGroup Id="ApplicationFiles" Directory="INSTALLFOLDER">
+      <Files Include="$(var.AppBuildDir)\**">
+        <Exclude Files="$(var.AppBuildDir)\*.pdb" />
+      </Files>
+    </ComponentGroup>
+  </Fragment>
+</Wix>
