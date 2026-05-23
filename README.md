@@ -5,6 +5,7 @@ Toolbox is a native Windows desktop utility built with C# and WinUI 3. It combin
 ## Features
 
 - **Audio Splitter** - splits one audio file into two parts in the background with progress reporting.
+- **Audio to MP3** - batch converts audio files to MP3 with bitrate, sample-rate, channel, suffix, and output-folder controls.
 - **Slide Splitter** - extracts slide regions from PDF pages, including manual visual cropping with multiple editable rectangles per page.
 - **Batch Renamer** - renames many files with readable rule-based options, live preview, numbering, dates, casing, prefixes, suffixes, and extension handling.
 - **PDF Toolbox** - merges PDFs, splits every page into separate files, deletes or rotates pages, compresses PDFs, and exports pages to JPG or PNG.

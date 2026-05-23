@@ -72,6 +72,7 @@ public sealed partial class MainWindow : Window
     {
         Type pageType = tag switch
         {
+            "audio-mp3" => typeof(AudioConverterPage),
             "slides" => typeof(SlideSplitterPage),
             "rename" => typeof(FileRenamerPage),
             "pdf" => typeof(PdfToolboxPage),

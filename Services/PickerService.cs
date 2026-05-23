@@ -22,6 +22,22 @@ public static class PickerService
         return await picker.PickSingleFileAsync();
     }
 
+    public static async Task<IReadOnlyList<StorageFile>> PickAudioFilesAsync()
+    {
+        var picker = new FileOpenPicker
+        {
+            SuggestedStartLocation = PickerLocationId.MusicLibrary
+        };
+
+        foreach (string extension in new[] { ".mp3", ".wav", ".flac", ".aac", ".ogg", ".m4a", ".wma", ".aiff", ".opus" })
+        {
+            picker.FileTypeFilter.Add(extension);
+        }
+
+        InitializeWithWindow.Initialize(picker, App.GetMainWindowHandle());
+        return await picker.PickMultipleFilesAsync();
+    }
+
     public static async Task<StorageFile?> PickPdfFileAsync()
     {
         var picker = new FileOpenPicker

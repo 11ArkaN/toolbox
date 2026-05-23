@@ -64,6 +64,14 @@
                     </NavigationViewItem.Icon>
                 </NavigationViewItem>
                 <NavigationViewItem
+                    x:Name="AudioConverterNavigationItem"
+                    Content="Audio to MP3"
+                    Tag="audio-mp3">
+                    <NavigationViewItem.Icon>
+                        <SymbolIcon Symbol="Audio" />
+                    </NavigationViewItem.Icon>
+                </NavigationViewItem>
+                <NavigationViewItem
                     x:Name="SlideNavigationItem"
                     Content="Slide Splitter"
                     Tag="slides">
