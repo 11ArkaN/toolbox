@@ -1,0 +1,346 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<Page
+    x:Class="Toolbox.Pages.DocxWatermarkPage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    Background="{ThemeResource SolidBackgroundFillColorTertiaryBrush}"
+    mc:Ignorable="d">
+
+    <Grid x:Name="RootGrid">
+        <Grid Padding="24" RowSpacing="18">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="*" />
+            </Grid.RowDefinitions>
+
+            <StackPanel Spacing="4">
+                <TextBlock Style="{StaticResource TitleTextBlockStyle}" Text="DOCX Watermark" />
+                <TextBlock Foreground="{ThemeResource TextFillColorSecondaryBrush}" Text="Add custom text watermark to embedded document images." />
+            </StackPanel>
+
+            <Grid Grid.Row="1" ColumnSpacing="18">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="400" />
+                    <ColumnDefinition Width="*" />
+                </Grid.ColumnDefinitions>
+
+            <ScrollViewer VerticalScrollBarVisibility="Auto">
+                <StackPanel Spacing="14">
+                    <Border
+                        Padding="16"
+                        Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
+                        BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
+                        BorderThickness="1"
+                        CornerRadius="8">
+                        <StackPanel Spacing="12">
+                            <TextBlock Style="{StaticResource SubtitleTextBlockStyle}" Text="Documents" />
+                            <Grid ColumnSpacing="8">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*" />
+                                    <ColumnDefinition Width="*" />
+                                </Grid.ColumnDefinitions>
+                                <Button
+                                    x:Name="AddDocxButton"
+                                    Click="AddDocxButton_Click">
+                                    <StackPanel Orientation="Horizontal" Spacing="8">
+                                        <SymbolIcon Symbol="OpenFile" />
+                                        <TextBlock Text="Add DOCX" />
+                                    </StackPanel>
+                                </Button>
+                                <Button
+                                    x:Name="UndoAddDocxButton"
+                                    Grid.Column="1"
+                                    Click="UndoAddDocxButton_Click"
+                                    IsEnabled="False">
+                                    <StackPanel Orientation="Horizontal" Spacing="8">
+                                        <SymbolIcon Symbol="Back" />
+                                        <TextBlock Text="Undo add" />
+                                    </StackPanel>
+                                </Button>
+                            </Grid>
+                            <Button
+                                x:Name="ClearDocxButton"
+                                Click="ClearDocxButton_Click"
+                                IsEnabled="False">
+                                <StackPanel Orientation="Horizontal" Spacing="8">
+                                    <SymbolIcon Symbol="Delete" />
+                                    <TextBlock Text="Clear list" />
+                                </StackPanel>
+                            </Button>
+                            <ListView
+                                x:Name="DocxListView"
+                                MaxHeight="148"
+                                SelectionMode="None" />
+                        </StackPanel>
+                    </Border>
+
+                    <Border
+                        Padding="16"
+                        Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
+                        BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
+                        BorderThickness="1"
+                        CornerRadius="8">
+                        <StackPanel Spacing="12">
+                            <TextBlock Style="{StaticResource SubtitleTextBlockStyle}" Text="Output" />
+                            <Grid ColumnSpacing="8">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*" />
+                                    <ColumnDefinition Width="Auto" />
+                                </Grid.ColumnDefinitions>
+                                <TextBox
+                                    x:Name="DocxOutputFolderBox"
+                                    IsReadOnly="True"
+                                    PlaceholderText="Output folder" />
+                                <Button
+                                    x:Name="ChooseDocxOutputButton"
+                                    Grid.Column="1"
+                                    Click="ChooseDocxOutputButton_Click">
+                                    <SymbolIcon Symbol="Folder" />
+                                </Button>
+                            </Grid>
+                            <TextBox
+                                x:Name="DocxSuffixBox"
+                                Header="Suffix"
+                                Text="_watermark" />
+                        </StackPanel>
+                    </Border>
+
+                    <Border
+                        Padding="16"
+                        Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
+                        BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
+                        BorderThickness="1"
+                        CornerRadius="8">
+                        <StackPanel Spacing="12">
+                            <TextBlock Style="{StaticResource SubtitleTextBlockStyle}" Text="Watermark" />
+                            <TextBox
+                                x:Name="WatermarkTextBox"
+                                AcceptsReturn="True"
+                                Header="Text"
+                                Height="96"
+                                PlaceholderText="Watermark text"
+                                TextChanged="WatermarkSettings_Changed"
+                                TextWrapping="Wrap" />
+                            <Grid ColumnSpacing="8">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*" />
+                                    <ColumnDefinition Width="*" />
+                                </Grid.ColumnDefinitions>
+                                <NumberBox
+                                    x:Name="OpacityBox"
+                                    Header="Opacity"
+                                    SpinButtonPlacementMode="Inline"
+                                    ValueChanged="WatermarkSettings_Changed" />
+                                <ComboBox
+                                    x:Name="PositionComboBox"
+                                    Grid.Column="1"
+                                    Header="Position"
+                                    SelectedIndex="0"
+                                    SelectionChanged="WatermarkSettings_Changed">
+                                    <ComboBoxItem Content="Random" />
+                                    <ComboBoxItem Content="Bottom left" />
+                                    <ComboBoxItem Content="Bottom right" />
+                                    <ComboBoxItem Content="Center" />
+                                </ComboBox>
+                            </Grid>
+                            <TextBox
+                                x:Name="SeedBox"
+                                Header="Seed"
+                                Text="12345"
+                                TextChanged="WatermarkSettings_Changed" />
+                            <Grid ColumnSpacing="8">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*" />
+                                    <ColumnDefinition Width="*" />
+                                </Grid.ColumnDefinitions>
+                                <NumberBox
+                                    x:Name="MinFontSizeBox"
+                                    Header="Min font"
+                                    SpinButtonPlacementMode="Inline"
+                                    ValueChanged="WatermarkSettings_Changed" />
+                                <NumberBox
+                                    x:Name="MaxFontSizeBox"
+                                    Grid.Column="1"
+                                    Header="Max font"
+                                    SpinButtonPlacementMode="Inline"
+                                    ValueChanged="WatermarkSettings_Changed" />
+                            </Grid>
+                            <Grid ColumnSpacing="8">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*" />
+                                    <ColumnDefinition Width="Auto" />
+                                </Grid.ColumnDefinitions>
+                                <TextBox
+                                    x:Name="FontPathBox"
+                                    IsReadOnly="True"
+                                    PlaceholderText="Default system font" />
+                                <Button
+                                    x:Name="ChooseFontButton"
+                                    Grid.Column="1"
+                                    Click="ChooseFontButton_Click">
+                                    <SymbolIcon Symbol="OpenFile" />
+                                </Button>
+                            </Grid>
+                        </StackPanel>
+                    </Border>
+                </StackPanel>
+            </ScrollViewer>
+
+            <Grid Grid.Column="1" RowSpacing="12">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="*" />
+                    <RowDefinition Height="Auto" />
+                </Grid.RowDefinitions>
+
+                <Grid ColumnSpacing="12">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="Auto" />
+                        <ColumnDefinition Width="Auto" />
+                    </Grid.ColumnDefinitions>
+                    <StackPanel Spacing="4">
+                        <TextBlock Style="{StaticResource SubtitleTextBlockStyle}" Text="Preview" />
+                        <TextBlock
+                            x:Name="PreviewSummaryText"
+                            Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                            Text="No DOCX selected" />
+                    </StackPanel>
+                    <Button
+                        x:Name="RefreshPreviewButton"
+                        Grid.Column="1"
+                        Click="RefreshPreviewButton_Click"
+                        IsEnabled="False">
+                        <StackPanel Orientation="Horizontal" Spacing="8">
+                            <SymbolIcon Symbol="Refresh" />
+                            <TextBlock Text="Refresh" />
+                        </StackPanel>
+                    </Button>
+                    <Button
+                        x:Name="ApplyWatermarkButton"
+                        Grid.Column="2"
+                        Click="ApplyWatermarkButton_Click"
+                        IsEnabled="False"
+                        Style="{StaticResource AccentButtonStyle}">
+                        <StackPanel Orientation="Horizontal" Spacing="8">
+                            <SymbolIcon Symbol="Save" />
+                            <TextBlock Text="Apply" />
+                        </StackPanel>
+                    </Button>
+                </Grid>
+
+                <Border
+                    Grid.Row="1"
+                    Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
+                    BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
+                    BorderThickness="1"
+                    CornerRadius="8">
+                    <ListView
+                        x:Name="WatermarkPreviewListView"
+                        IsItemClickEnabled="True"
+                        ItemClick="WatermarkPreviewListView_ItemClick"
+                        SelectionMode="None">
+                        <ListView.ItemTemplate>
+                            <DataTemplate>
+                                <Grid Padding="10" ColumnSpacing="12">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="180" />
+                                        <ColumnDefinition Width="*" />
+                                    </Grid.ColumnDefinitions>
+                                    <Border
+                                        Width="180"
+                                        Height="122"
+                                        Background="{ThemeResource SolidBackgroundFillColorBaseBrush}"
+                                        BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
+                                        BorderThickness="1"
+                                        CornerRadius="6">
+                                        <Image
+                                            Margin="6"
+                                            Source="{Binding Image}"
+                                            Stretch="Uniform" />
+                                    </Border>
+                                    <StackPanel
+                                        Grid.Column="1"
+                                        VerticalAlignment="Center"
+                                        Spacing="4">
+                                        <TextBlock
+                                            FontWeight="SemiBold"
+                                            Text="{Binding Title}"
+                                            TextTrimming="CharacterEllipsis" />
+                                        <TextBlock
+                                            Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                                            Text="{Binding Details}"
+                                            TextWrapping="Wrap" />
+                                    </StackPanel>
+                                </Grid>
+                            </DataTemplate>
+                        </ListView.ItemTemplate>
+                    </ListView>
+                </Border>
+
+                <StackPanel Grid.Row="2" Spacing="8">
+                    <ProgressBar
+                        x:Name="DocxWatermarkProgressBar"
+                        Maximum="100"
+                        Minimum="0" />
+                    <InfoBar
+                        x:Name="DocxWatermarkInfoBar"
+                        IsOpen="False"
+                        Severity="Informational" />
+                </StackPanel>
+            </Grid>
+        </Grid>
+        </Grid>
+
+        <Grid
+            x:Name="FullscreenPreviewOverlay"
+            Canvas.ZIndex="20"
+            Background="#F2000000"
+            IsTabStop="True"
+            KeyDown="FullscreenPreviewOverlay_KeyDown"
+            Visibility="Collapsed">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="*" />
+            </Grid.RowDefinitions>
+
+            <Grid
+                Padding="18,14"
+                Background="#CC000000"
+                ColumnSpacing="12">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="Auto" />
+                </Grid.ColumnDefinitions>
+                <StackPanel Spacing="2">
+                    <TextBlock
+                        x:Name="FullscreenPreviewTitle"
+                        Foreground="White"
+                        FontWeight="SemiBold"
+                        TextTrimming="CharacterEllipsis" />
+                    <TextBlock
+                        x:Name="FullscreenPreviewDetails"
+                        Foreground="#CCFFFFFF"
+                        TextTrimming="CharacterEllipsis" />
+                </StackPanel>
+                <Button
+                    x:Name="CloseFullscreenPreviewButton"
+                    Grid.Column="1"
+                    Click="CloseFullscreenPreviewButton_Click"
+                    ToolTipService.ToolTip="Close">
+                    <SymbolIcon Symbol="Cancel" />
+                </Button>
+            </Grid>
+
+            <Image
+                x:Name="FullscreenPreviewImage"
+                Grid.Row="1"
+                Margin="16"
+                HorizontalAlignment="Stretch"
+                VerticalAlignment="Stretch"
+                Stretch="Uniform" />
+        </Grid>
+    </Grid>
+</Page>

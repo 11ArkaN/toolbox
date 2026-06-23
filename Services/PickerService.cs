@@ -62,6 +62,31 @@ public static class PickerService
         return await picker.PickMultipleFilesAsync();
     }
 
+    public static async Task<IReadOnlyList<StorageFile>> PickDocxFilesAsync()
+    {
+        var picker = new FileOpenPicker
+        {
+            SuggestedStartLocation = PickerLocationId.DocumentsLibrary
+        };
+
+        picker.FileTypeFilter.Add(".docx");
+        InitializeWithWindow.Initialize(picker, App.GetMainWindowHandle());
+        return await picker.PickMultipleFilesAsync();
+    }
+
+    public static async Task<StorageFile?> PickFontFileAsync()
+    {
+        var picker = new FileOpenPicker
+        {
+            SuggestedStartLocation = PickerLocationId.ComputerFolder
+        };
+
+        picker.FileTypeFilter.Add(".ttf");
+        picker.FileTypeFilter.Add(".otf");
+        InitializeWithWindow.Initialize(picker, App.GetMainWindowHandle());
+        return await picker.PickSingleFileAsync();
+    }
+
     public static async Task<IReadOnlyList<StorageFile>> PickImageFilesAsync()
     {
         var picker = new FileOpenPicker

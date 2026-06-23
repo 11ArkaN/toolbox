@@ -76,6 +76,7 @@ public sealed partial class MainWindow : Window
             "slides" => typeof(SlideSplitterPage),
             "rename" => typeof(FileRenamerPage),
             "pdf" => typeof(PdfToolboxPage),
+            "docx-watermark" => typeof(DocxWatermarkPage),
             "images" => typeof(ImageConverterPage),
             _ => typeof(AudioSplitterPage)
         };

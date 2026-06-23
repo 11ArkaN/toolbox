@@ -9,6 +9,7 @@ Toolbox is a native Windows desktop utility built with C# and WinUI 3. It combin
 - **Slide Splitter** - extracts slide regions from PDF pages, including manual visual cropping with multiple editable rectangles per page.
 - **Batch Renamer** - renames many files with readable rule-based options, live preview, numbering, dates, casing, prefixes, suffixes, and extension handling.
 - **PDF Toolbox** - merges PDFs, splits every page into separate files, deletes or rotates pages, compresses PDFs, and exports pages to JPG or PNG.
+- **DOCX Watermark** - adds a configurable multiline watermark to every supported image embedded in DOCX files, with image preview and undo for the last added batch.
 - **Image Converter** - batch converts images between JPG, PNG, and WebP with resizing, aspect-ratio crop, quality settings, and output suffixes.
 
 ## Requirements
@@ -38,7 +39,7 @@ Run the built app:
 The installer is authored with WiX Toolset and packages the verified WinUI build output into an MSI.
 
 ```powershell
-dotnet build Installer\Toolbox.Installer.wixproj -c Release -p:ProductVersion=1.0.0 -p:AppBuildDir="$PWD\artifacts\app-win-x64"
+dotnet build Installer\Toolbox.Installer.wixproj -c Release -p:ProductVersion=1.2.1 -p:AppBuildDir="$PWD\artifacts\app-win-x64"
 ```
 
 The MSI is produced under:

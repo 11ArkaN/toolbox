@@ -96,6 +96,14 @@
                     </NavigationViewItem.Icon>
                 </NavigationViewItem>
                 <NavigationViewItem
+                    x:Name="DocxWatermarkNavigationItem"
+                    Content="DOCX Watermark"
+                    Tag="docx-watermark">
+                    <NavigationViewItem.Icon>
+                        <SymbolIcon Symbol="Document" />
+                    </NavigationViewItem.Icon>
+                </NavigationViewItem>
+                <NavigationViewItem
                     x:Name="ImageConverterNavigationItem"
                     Content="Image Converter"
                     Tag="images">
